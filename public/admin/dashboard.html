@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamPro Admin - Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --primary-dark: #2980b9;
+        --accent-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --dark-bg: #1a1a1a;
+        --medium-bg: #2c2c2c;
+        --light-bg: #333333;
+        --text-color: #f5f5f5;
+        --text-secondary: #aaaaaa;
+        --border-color: #444444;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: var(--dark-bg);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        overflow-x: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: var(--medium-bg);
+        width: 250px;
+        min-height: 100vh;
+        border-right: 1px solid var(--border-color);
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+
+      .sidebar-header {
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .sidebar-header h3 {
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--primary-color);
+      }
+
+      .sidebar-menu {
+        padding: 0;
+        list-style: none;
+        margin-top: 20px;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 5px;
+      }
+
+      .sidebar-menu a {
+        display: block;
+        padding: 12px 20px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+      }
+
+      .sidebar-menu a:hover,
+      .sidebar-menu a.active {
+        background: var(--light-bg);
+        border-left-color: var(--primary-color);
+      }
+
+      .sidebar-menu i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 15px 20px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .sidebar-footer button {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .sidebar-footer button:hover {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        width: calc(100% - 250px);
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      /* Cards */
+      .info-card {
+        background: var(--medium-bg);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-card h3 {
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: var(--text-secondary);
+      }
+
+      .info-card .value {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+
+      .info-card .icon {
+        float: right;
+        font-size: 2.5rem;
+        opacity: 0.2;
+      }
+
+      /* Tables */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .data-table th {
+        text-align: left;
+        padding: 12px 15px;
+        background: var(--light-bg);
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .data-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .data-table tr:hover {
+        background: rgba(52, 152, 219, 0.05);
+      }
+
+      /* Status tags */
+      .status-tag {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-active {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--success-color);
+      }
+
+      .status-used {
+        background: rgba(52, 152, 219, 0.15);
+        color: var(--primary-color);
+      }
+
+      .status-expired {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--accent-color);
+      }
+
+      .status-inactive {
+        background: rgba(149, 165, 166, 0.15);
+        color: #95a5a6;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        border: none;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-danger {
+        background: var(--accent-color);
+        border: none;
+        color: white;
+      }
+
+      .btn-success {
+        background: var(--success-color);
+        border: none;
+        color: white;
+      }
+
+      .btn-warning {
+        background: var(--warning-color);
+        border: none;
+        color: white;
+      }
+
+      .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+
+      /* Tabs */
+      .content-tabs {
+        display: none;
+      }
+
+      .content-tabs.active {
+        display: block;
+      }
+
+      /* Loading indicator */
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-secondary);
+      }
+
+      /* Form controls */
+      .form-control {
+        background: var(--dark-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        padding: 8px 12px;
+        border-radius: 4px;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text-secondary);
+      }
+
+      /* Modal styles */
+      .modal-content {
+        background-color: var(--medium-bg);
+        color: var(--text-color);
+      }
+
+      .modal-header {
+        border-bottom-color: var(--border-color);
+      }
+
+      .modal-footer {
+        border-top-color: var(--border-color);
+      }
+
+      .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+      }
+
+      /* URL display */
+      .url-display {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: monospace;
+        background: var(--dark-bg);
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+      }
+
+      /* Alert styles */
+      .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+
+      .alert-success {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--success-color);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+      }
+
+      .alert-danger {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--accent-color);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+      }
+
+      .alert-warning {
+        background: rgba(243, 156, 18, 0.15);
+        color: var(--warning-color);
+        border: 1px solid rgba(243, 156, 18, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3><i class="bi bi-play-circle-fill"></i> StreamPro Admin</h3>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li>
+          <a href="#" class="active" data-tab="dashboard"
+            ><i class="bi bi-speedometer2"></i> Dashboard</a
+          >
+        </li>
+        <li>
+          <a href="#" data-tab="codes"
+            ><i class="bi bi-ticket-perforated"></i> Códigos</a
+          >
+        </li>
+        <li>
+          <a href="#" data-tab="devices"
+            ><i class="bi bi-phone"></i> Dispositivos</a
+          >
+        </li>
+        <li>
+          <a href="#" data-tab="streaming"
+            ><i class="bi bi-broadcast"></i> Streaming</a
+          >
+        </li>
+        <li>
+          <a href="#" data-tab="settings"
+            ><i class="bi bi-gear"></i> Configuración</a
+          >
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn">
+          <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Dashboard Tab -->
+      <div id="dashboard" class="content-tabs active">
+        <h2 class="page-title">Dashboard</h2>
+
+        <div class="row">
+          <div class="col-md-3">
+            <div class="info-card">
+              <span class="icon"><i class="bi bi-ticket-perforated"></i></span>
+              <h3>Códigos Activos</h3>
+              <div class="value" id="activeCodesCount">-</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="info-card">
+              <span class="icon"><i class="bi bi-phone"></i></span>
+              <h3>Dispositivos Conectados</h3>
+              <div class="value" id="activeDevicesCount">-</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="info-card">
+              <span class="icon"><i class="bi bi-broadcast"></i></span>
+              <h3>Fuentes Activas</h3>
+              <div class="value" id="activeSourcesCount">-</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="info-card">
+              <span class="icon"><i class="bi bi-graph-up"></i></span>
+              <h3>Tasa de Conversión</h3>
+              <div class="value" id="conversionRate">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <div class="info-card">
+              <h3>Últimos Códigos Activados</h3>
+              <div class="table-responsive">
+                <table class="data-table" id="recentCodesTable">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="3" class="loading">Cargando datos...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="info-card">
+              <h3>Actividad Reciente</h3>
+              <div class="table-responsive">
+                <table class="data-table" id="recentActivityTable">
+                  <thead>
+                    <tr>
+                      <th>Dispositivo</th>
+                      <th>Código</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="3" class="loading">Cargando datos...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Codes Tab -->
+      <div id="codes" class="content-tabs">
+        <h2 class="page-title">Gestión de Códigos</h2>
+
+        <div class="d-flex justify-content-between mb-3">
+          <h4>Códigos de Activación</h4>
+          <button
+            class="btn btn-primary"
+            id="createCodeBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#generateCodesModal"
+          >
+            <i class="bi bi-plus-circle"></i> Generar Códigos
+          </button>
+        </div>
+
+        <div class="info-card">
+          <div class="table-responsive">
+            <table class="data-table" id="codesTable">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Estado</th>
+                  <th>Usos</th>
+                  <th>Límite</th>
+                  <th>Creado</th>
+                  <th>Expira</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="7" class="loading">Cargando datos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Devices Tab -->
+      <div id="devices" class="content-tabs">
+        <h2 class="page-title">Dispositivos Activados</h2>
+
+        <div class="info-card">
+          <div class="table-responsive">
+            <table class="data-table" id="devicesTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Código</th>
+                  <th>Estado</th>
+                  <th>Última Actividad</th>
+                  <th>Fecha Activación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="loading">Cargando datos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streaming Sources Tab -->
+      <div id="streaming" class="content-tabs">
+        <h2 class="page-title">Gestión de Fuentes de Streaming</h2>
+
+        <div class="d-flex justify-content-between mb-3">
+          <h4>Fuentes de Video</h4>
+          <button
+            class="btn btn-primary"
+            id="addSourceBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#addSourceModal"
+          >
+            <i class="bi bi-plus-circle"></i> Agregar Fuente
+          </button>
+        </div>
+
+        <div class="info-card">
+          <div class="table-responsive">
+            <table class="data-table" id="sourcesTable">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Calidad</th>
+                  <th>URL</th>
+                  <th>Estado</th>
+                  <th>Creado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="loading">Cargando fuentes...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settings" class="content-tabs">
+        <h2 class="page-title">Configuración</h2>
+
+        <div class="info-card">
+          <h3>Ajustes del Sistema</h3>
+
+          <form id="settingsForm">
+            <div class="form-group">
+              <label for="timerDuration"
+                >Duración del temporizador (segundos)</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="timerDuration"
+                value="15"
+                min="10"
+              />
+              <small class="text-muted"
+                >Tiempo de prueba gratuito antes de pedir el código</small
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="tokenExpiry">Duración de los tokens (días)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="tokenExpiry"
+                value="30"
+                min="1"
+              />
+              <small class="text-muted"
+                >Tiempo de validez del acceso premium</small
+              >
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Guardar Configuración
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Codes Modal -->
+    <div
+      class="modal fade"
+      id="generateCodesModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header">
+            <h5 class="modal-title">Generar Códigos</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="generateCodesForm">
+              <div class="form-group">
+                <label for="codeCount">Cantidad de códigos</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="codeCount"
+                  min="1"
+                  max="100"
+                  value="10"
+                />
+              </div>
+              <div class="form-group">
+                <label for="usageLimit">Límite de usos por código</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="usageLimit"
+                  min="1"
+                  value="1"
+                />
+              </div>
+              <div class="form-group">
+                <label for="expiryDays">Días hasta expiración</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="expiryDays"
+                  min="1"
+                  value="30"
+                />
+              </div>
+              <div class="form-group">
+                <label for="codePrefix">Prefijo (opcional)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="codePrefix"
+                  placeholder="CODE-"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-light"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="generateCodesSubmit"
+            >
+              Generar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Source Modal -->
+    <div
+      class="modal fade"
+      id="addSourceModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sourceModalTitle">
+              Agregar Fuente de Streaming
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="sourceForm">
+              <input type="hidden" id="sourceId" />
+              <div class="form-group">
+                <label for="sourceName">Nombre de la fuente</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="sourceName"
+                  placeholder="Ej: Stream Principal HD"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="sourceQuality">Calidad</label>
+                <select class="form-control" id="sourceQuality" required>
+                  <option value="">Seleccionar calidad</option>
+                  <option value="SD">SD (480p)</option>
+                  <option value="HD">HD (720p)</option>
+                  <option value="FHD">Full HD (1080p)</option>
+                  <option value="4K">4K (2160p)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="sourceUrl">URL del stream</label>
+                <input
+                  type="url"
+                  class="form-control"
+                  id="sourceUrl"
+                  placeholder="https://example.com/stream.m3u8"
+                  required
+                />
+                <small class="text-muted">
+                  Debe ser una URL válida de streaming HLS (.m3u8)
+                </small>
+              </div>
+              <div class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="sourceActive"
+                  checked
+                />
+                <label class="form-check-label" for="sourceActive">
+                  Fuente activa
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-light"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" id="saveSourceBtn">
+              Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Verificar autenticación
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
+          window.location.href = "/admin/login.html";
+          return;
+        }
+
+        // Variables globales
+        let codesData = [];
+        let devicesData = [];
+        let sourcesData = [];
+        let currentEditingSourceId = null;
+
+        // Elementos del DOM
+        const menuLinks = document.querySelectorAll(".sidebar-menu a");
+        const contentTabs = document.querySelectorAll(".content-tabs");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        // Manejo de pestañas
+        menuLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Remover clase active de todos los enlaces
+            menuLinks.forEach((l) => l.classList.remove("active"));
+
+            // Añadir clase active al enlace actual
+            this.classList.add("active");
+
+            // Ocultar todas las pestañas
+            contentTabs.forEach((tab) => tab.classList.remove("active"));
+
+            // Mostrar la pestaña seleccionada
+            const tabId = this.getAttribute("data-tab");
+            document.getElementById(tabId).classList.add("active");
+
+            // Cargar datos según la pestaña
+            if (tabId === "codes") {
+              loadCodes();
+            } else if (tabId === "devices") {
+              loadDevices();
+            } else if (tabId === "streaming") {
+              loadSources();
+            } else if (tabId === "dashboard") {
+              loadDashboard();
+            }
+          });
+        });
+
+        // Función para cargar el dashboard
+        function loadDashboard() {
+          // Cargar contador de códigos activos
+          fetch("/api/codes", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Error al cargar códigos: " + response.status);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                const activeCodes = data.data.filter(
+                  (code) => code.status === "active"
+                );
+                document.getElementById("activeCodesCount").textContent =
+                  activeCodes.length;
+
+                // Actualizar tabla de códigos recientes
+                updateRecentCodesTable(data.data);
+              } else {
+                console.error("Error en respuesta de códigos:", data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar códigos activos:", error);
+              document.getElementById("activeCodesCount").textContent = "?";
+            });
+
+          // Cargar contador de dispositivos activos
+          fetch("/api/devices", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  "Error al cargar dispositivos: " + response.status
+                );
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                const activeDevices = data.data.filter(
+                  (device) => device.status === "active"
+                );
+                document.getElementById("activeDevicesCount").textContent =
+                  activeDevices.length;
+
+                // Actualizar tabla de actividad reciente
+                updateRecentActivityTable(data.data);
+
+                // Calcular tasa de conversión
+                const usedCodes = codesData.filter(
+                  (code) => code.status !== "active"
+                ).length;
+                const conversionRate =
+                  usedCodes > 0
+                    ? Math.round((activeDevices.length / usedCodes) * 100)
+                    : 0;
+
+                document.getElementById(
+                  "conversionRate"
+                ).textContent = `${conversionRate}%`;
+              } else {
+                console.error(
+                  "Error en respuesta de dispositivos:",
+                  data.message
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar dispositivos activos:", error);
+              document.getElementById("activeDevicesCount").textContent = "?";
+            });
+
+          // Cargar contador de fuentes activas
+          fetch("/api/streaming/all", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                const activeSources = data.data.filter(
+                  (source) => source.is_active
+                );
+                document.getElementById("activeSourcesCount").textContent =
+                  activeSources.length;
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar fuentes:", error);
+              document.getElementById("activeSourcesCount").textContent = "?";
+            });
+        }
+
+        // Función para actualizar tabla de códigos recientes
+        function updateRecentCodesTable(codes) {
+          const recentCodesTable = document
+            .getElementById("recentCodesTable")
+            .getElementsByTagName("tbody")[0];
+          recentCodesTable.innerHTML = "";
+
+          const recentCodes = codes.slice(0, 5);
+
+          if (recentCodes.length === 0) {
+            recentCodesTable.innerHTML =
+              '<tr><td colspan="3" class="text-center">No hay códigos recientes</td></tr>';
+          } else {
+            recentCodes.forEach((code) => {
+              const row = document.createElement("tr");
+
+              const codeCell = document.createElement("td");
+              codeCell.textContent = code.code;
+
+              const statusCell = document.createElement("td");
+              const statusTag = document.createElement("span");
+              statusTag.className = `status-tag status-${code.status}`;
+              statusTag.textContent =
+                code.status.charAt(0).toUpperCase() + code.status.slice(1);
+              statusCell.appendChild(statusTag);
+
+              const dateCell = document.createElement("td");
+              dateCell.textContent = new Date(
+                code.created_at
+              ).toLocaleDateString();
+
+              row.appendChild(codeCell);
+              row.appendChild(statusCell);
+              row.appendChild(dateCell);
+
+              recentCodesTable.appendChild(row);
+            });
+          }
+        }
+
+        // Función para actualizar tabla de actividad reciente
+        function updateRecentActivityTable(devices) {
+          const recentActivityTable = document
+            .getElementById("recentActivityTable")
+            .getElementsByTagName("tbody")[0];
+          recentActivityTable.innerHTML = "";
+
+          const recentDevices = [...devices]
+            .sort((a, b) => new Date(b.activated_at) - new Date(a.activated_at))
+            .slice(0, 5);
+
+          if (recentDevices.length === 0) {
+            recentActivityTable.innerHTML =
+              '<tr><td colspan="3" class="text-center">No hay actividad reciente</td></tr>';
+          } else {
+            recentDevices.forEach((device) => {
+              const row = document.createElement("tr");
+
+              const deviceCell = document.createElement("td");
+              deviceCell.textContent =
+                device.device_id.substring(0, 10) + "...";
+
+              const codeCell = document.createElement("td");
+              codeCell.textContent = device.activation_code;
+
+              const dateCell = document.createElement("td");
+              dateCell.textContent = new Date(
+                device.activated_at
+              ).toLocaleDateString();
+
+              row.appendChild(deviceCell);
+              row.appendChild(codeCell);
+              row.appendChild(dateCell);
+
+              recentActivityTable.appendChild(row);
+            });
+          }
+        }
+
+        // Función para cargar códigos
+        function loadCodes() {
+          fetch("/api/codes", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Error al cargar códigos: " + response.status);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                codesData = data.data;
+                updateCodesTable();
+              } else {
+                console.error("Error en respuesta de códigos:", data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar códigos:", error);
+              document
+                .getElementById("codesTable")
+                .getElementsByTagName("tbody")[0].innerHTML =
+                '<tr><td colspan="7" class="text-center">Error al cargar datos. Por favor, intenta nuevamente.</td></tr>';
+            });
+        }
+
+        // Función para actualizar tabla de códigos
+        function updateCodesTable() {
+          const codesTable = document
+            .getElementById("codesTable")
+            .getElementsByTagName("tbody")[0];
+          codesTable.innerHTML = "";
+
+          if (codesData.length === 0) {
+            codesTable.innerHTML =
+              '<tr><td colspan="7" class="text-center">No hay códigos disponibles</td></tr>';
+          } else {
+            codesData.forEach((code) => {
+              const row = document.createElement("tr");
+
+              // Código
+              const codeCell = document.createElement("td");
+              codeCell.textContent = code.code;
+
+              // Estado
+              const statusCell = document.createElement("td");
+              const statusTag = document.createElement("span");
+              statusTag.className = `status-tag status-${code.status}`;
+              statusTag.textContent =
+                code.status.charAt(0).toUpperCase() + code.status.slice(1);
+              statusCell.appendChild(statusTag);
+
+              // Usos
+              const usesCell = document.createElement("td");
+              usesCell.textContent = code.usage_count;
+
+              // Límite
+              const limitCell = document.createElement("td");
+              limitCell.textContent = code.usage_limit;
+
+              // Fecha creación
+              const createdCell = document.createElement("td");
+              createdCell.textContent = new Date(
+                code.created_at
+              ).toLocaleDateString();
+
+              // Fecha expiración
+              const expiresCell = document.createElement("td");
+              expiresCell.textContent = new Date(
+                code.expires_at
+              ).toLocaleDateString();
+
+              // Acciones
+              const actionsCell = document.createElement("td");
+              if (code.status === "active") {
+                const disableBtn = document.createElement("button");
+                disableBtn.className = "btn btn-sm btn-danger";
+                disableBtn.textContent = "Desactivar";
+                disableBtn.onclick = () => disableCode(code.id);
+                actionsCell.appendChild(disableBtn);
+              }
+
+              // Añadir celdas a la fila
+              row.appendChild(codeCell);
+              row.appendChild(statusCell);
+              row.appendChild(usesCell);
+              row.appendChild(limitCell);
+              row.appendChild(createdCell);
+              row.appendChild(expiresCell);
+              row.appendChild(actionsCell);
+
+              // Añadir fila a la tabla
+              codesTable.appendChild(row);
+            });
+          }
+        }
+
+        // Función para cargar dispositivos
+        function loadDevices() {
+          fetch("/api/devices", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  "Error al cargar dispositivos: " + response.status
+                );
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                devicesData = data.data;
+                updateDevicesTable();
+              } else {
+                console.error(
+                  "Error en respuesta de dispositivos:",
+                  data.message
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar dispositivos:", error);
+              document
+                .getElementById("devicesTable")
+                .getElementsByTagName("tbody")[0].innerHTML =
+                '<tr><td colspan="6" class="text-center">Error al cargar datos. Por favor, intenta nuevamente.</td></tr>';
+            });
+        }
+
+        // Función para actualizar tabla de dispositivos
+        function updateDevicesTable() {
+          const devicesTable = document
+            .getElementById("devicesTable")
+            .getElementsByTagName("tbody")[0];
+          devicesTable.innerHTML = "";
+
+          if (devicesData.length === 0) {
+            devicesTable.innerHTML =
+              '<tr><td colspan="6" class="text-center">No hay dispositivos activados</td></tr>';
+          } else {
+            devicesData.forEach((device) => {
+              const row = document.createElement("tr");
+
+              // ID
+              const idCell = document.createElement("td");
+              idCell.textContent = device.device_id.substring(0, 10) + "...";
+
+              // Código
+              const codeCell = document.createElement("td");
+              codeCell.textContent = device.activation_code;
+
+              // Estado
+              const statusCell = document.createElement("td");
+              const statusTag = document.createElement("span");
+              statusTag.className = `status-tag status-${device.status}`;
+              statusTag.textContent =
+                device.status.charAt(0).toUpperCase() + device.status.slice(1);
+              statusCell.appendChild(statusTag);
+
+              // Última actividad
+              const lastActiveCell = document.createElement("td");
+              lastActiveCell.textContent = new Date(
+                device.last_active
+              ).toLocaleString();
+
+              // Fecha activación
+              const activatedCell = document.createElement("td");
+              activatedCell.textContent = new Date(
+                device.activated_at
+              ).toLocaleString();
+
+              // Acciones
+              const actionsCell = document.createElement("td");
+              if (device.status === "active") {
+                const revokeBtn = document.createElement("button");
+                revokeBtn.className = "btn btn-sm btn-danger";
+                revokeBtn.textContent = "Revocar";
+                revokeBtn.onclick = () => revokeDevice(device.device_id);
+                actionsCell.appendChild(revokeBtn);
+              }
+
+              // Añadir celdas a la fila
+              row.appendChild(idCell);
+              row.appendChild(codeCell);
+              row.appendChild(statusCell);
+              row.appendChild(lastActiveCell);
+              row.appendChild(activatedCell);
+              row.appendChild(actionsCell);
+
+              // Añadir fila a la tabla
+              devicesTable.appendChild(row);
+            });
+          }
+        }
+
+        // Función para cargar fuentes de streaming
+        function loadSources() {
+          fetch("/api/streaming/all", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Error al cargar fuentes: " + response.status);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                sourcesData = data.data;
+                updateSourcesTable();
+              } else {
+                console.error("Error en respuesta de fuentes:", data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar fuentes:", error);
+              document
+                .getElementById("sourcesTable")
+                .getElementsByTagName("tbody")[0].innerHTML =
+                '<tr><td colspan="6" class="text-center">Error al cargar fuentes. Por favor, intenta nuevamente.</td></tr>';
+            });
+        }
+
+        // Función para actualizar tabla de fuentes
+        function updateSourcesTable() {
+          const sourcesTable = document
+            .getElementById("sourcesTable")
+            .getElementsByTagName("tbody")[0];
+          sourcesTable.innerHTML = "";
+
+          if (sourcesData.length === 0) {
+            sourcesTable.innerHTML =
+              '<tr><td colspan="6" class="text-center">No hay fuentes de streaming configuradas</td></tr>';
+          } else {
+            sourcesData.forEach((source) => {
+              const row = document.createElement("tr");
+
+              // Nombre
+              const nameCell = document.createElement("td");
+              nameCell.textContent = source.name;
+
+              // Calidad
+              const qualityCell = document.createElement("td");
+              const qualityBadge = document.createElement("span");
+              qualityBadge.className = "badge bg-primary";
+              qualityBadge.textContent = source.quality;
+              qualityCell.appendChild(qualityBadge);
+
+              // URL
+              const urlCell = document.createElement("td");
+              const urlDiv = document.createElement("div");
+              urlDiv.className = "url-display";
+              urlDiv.textContent = source.url;
+              urlDiv.title = source.url; // Tooltip con URL completa
+              urlCell.appendChild(urlDiv);
+
+              // Estado
+              const statusCell = document.createElement("td");
+              const statusTag = document.createElement("span");
+              statusTag.className = `status-tag ${
+                source.is_active ? "status-active" : "status-inactive"
+              }`;
+              statusTag.textContent = source.is_active ? "Activa" : "Inactiva";
+              statusCell.appendChild(statusTag);
+
+              // Fecha creación
+              const createdCell = document.createElement("td");
+              createdCell.textContent = new Date(
+                source.created_at
+              ).toLocaleDateString();
+
+              // Acciones
+              const actionsCell = document.createElement("td");
+              const editBtn = document.createElement("button");
+              editBtn.className = "btn btn-sm btn-warning me-2";
+              editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+              editBtn.title = "Editar";
+              editBtn.onclick = () => editSource(source);
+
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "btn btn-sm btn-danger";
+              deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+              deleteBtn.title = "Eliminar";
+              deleteBtn.onclick = () => deleteSource(source.id);
+
+              actionsCell.appendChild(editBtn);
+              actionsCell.appendChild(deleteBtn);
+
+              // Añadir celdas a la fila
+              row.appendChild(nameCell);
+              row.appendChild(qualityCell);
+              row.appendChild(urlCell);
+              row.appendChild(statusCell);
+              row.appendChild(createdCell);
+              row.appendChild(actionsCell);
+
+              // Añadir fila a la tabla
+              sourcesTable.appendChild(row);
+            });
+          }
+        }
+
+        // Función para revocar un dispositivo
+        function revokeDevice(deviceId) {
+          if (
+            !confirm(
+              `¿Estás seguro de revocar el acceso del dispositivo ${deviceId}?`
+            )
+          ) {
+            return;
+          }
+
+          fetch(`/api/devices/${deviceId}/revoke`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showAlert("Acceso revocado correctamente", "success");
+                loadDevices();
+                loadDashboard();
+              } else {
+                showAlert("Error al revocar acceso: " + data.message, "danger");
+              }
+            })
+            .catch((error) => {
+              console.error("Error al revocar dispositivo:", error);
+              showAlert(
+                "Error de conexión al intentar revocar el dispositivo",
+                "danger"
+              );
+            });
+        }
+
+        // Función para deshabilitar un código
+        function disableCode(codeId) {
+          if (!confirm("¿Estás seguro de desactivar este código?")) {
+            return;
+          }
+
+          fetch(`/api/codes/${codeId}/disable`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showAlert("Código desactivado correctamente", "success");
+                loadCodes();
+                loadDashboard();
+              } else {
+                showAlert(
+                  "Error al desactivar código: " + data.message,
+                  "danger"
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error al desactivar código:", error);
+              showAlert(
+                "Error de conexión al intentar desactivar el código",
+                "danger"
+              );
+            });
+        }
+
+        // Función para editar fuente
+        function editSource(source) {
+          currentEditingSourceId = source.id;
+          document.getElementById("sourceModalTitle").textContent =
+            "Editar Fuente de Streaming";
+          document.getElementById("sourceId").value = source.id;
+          document.getElementById("sourceName").value = source.name;
+          document.getElementById("sourceQuality").value = source.quality;
+          document.getElementById("sourceUrl").value = source.url;
+          document.getElementById("sourceActive").checked = source.is_active;
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("addSourceModal")
+          );
+          modal.show();
+        }
+
+        // Función para eliminar fuente
+        function deleteSource(sourceId) {
+          if (!confirm("¿Estás seguro de eliminar esta fuente de streaming?")) {
+            return;
+          }
+
+          fetch(`/api/streaming/${sourceId}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showAlert("Fuente eliminada correctamente", "success");
+                loadSources();
+                loadDashboard();
+              } else {
+                showAlert(
+                  "Error al eliminar fuente: " + data.message,
+                  "danger"
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error al eliminar fuente:", error);
+              showAlert(
+                "Error de conexión al intentar eliminar la fuente",
+                "danger"
+              );
+            });
+        }
+
+        // Función para mostrar alertas
+        function showAlert(message, type) {
+          const alertDiv = document.createElement("div");
+          alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+          alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          `;
+
+          const container = document.querySelector(".content-tabs.active");
+          container.insertBefore(alertDiv, container.firstChild);
+
+          // Auto-hide after 5 seconds
+          setTimeout(() => {
+            if (alertDiv.parentNode) {
+              alertDiv.remove();
+            }
+          }, 5000);
+        }
+
+        // Generar códigos
+        document
+          .getElementById("generateCodesSubmit")
+          .addEventListener("click", function () {
+            const count = document.getElementById("codeCount").value;
+            const usageLimit = document.getElementById("usageLimit").value;
+            const expiryDays = document.getElementById("expiryDays").value;
+            const prefix = document.getElementById("codePrefix").value;
+
+            fetch("/api/codes/generate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                count: parseInt(count),
+                usageLimit: parseInt(usageLimit),
+                expiryDays: parseInt(expiryDays),
+                prefix,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  showAlert(
+                    `${count} códigos generados correctamente`,
+                    "success"
+                  );
+
+                  // Cerrar modal
+                  const modal = bootstrap.Modal.getInstance(
+                    document.getElementById("generateCodesModal")
+                  );
+                  modal.hide();
+
+                  // Recargar códigos
+                  loadCodes();
+                  loadDashboard();
+                } else {
+                  showAlert(
+                    "Error al generar códigos: " + data.message,
+                    "danger"
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error("Error al generar códigos:", error);
+                showAlert(
+                  "Error de conexión al intentar generar códigos",
+                  "danger"
+                );
+              });
+          });
+
+        // Manejar modal de fuentes
+        document
+          .getElementById("addSourceBtn")
+          .addEventListener("click", function () {
+            currentEditingSourceId = null;
+            document.getElementById("sourceModalTitle").textContent =
+              "Agregar Fuente de Streaming";
+            document.getElementById("sourceForm").reset();
+            document.getElementById("sourceActive").checked = true;
+          });
+
+        // Guardar fuente
+        document
+          .getElementById("saveSourceBtn")
+          .addEventListener("click", function () {
+            const name = document.getElementById("sourceName").value;
+            const quality = document.getElementById("sourceQuality").value;
+            const url = document.getElementById("sourceUrl").value;
+            const isActive = document.getElementById("sourceActive").checked;
+
+            if (!name || !quality || !url) {
+              showAlert(
+                "Por favor, completa todos los campos obligatorios",
+                "warning"
+              );
+              return;
+            }
+
+            const isEditing = currentEditingSourceId !== null;
+            const apiUrl = isEditing
+              ? `/api/streaming/${currentEditingSourceId}`
+              : "/api/streaming/add";
+            const method = isEditing ? "PUT" : "POST";
+
+            fetch(apiUrl, {
+              method: method,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                name,
+                quality,
+                url,
+                is_active: isActive,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  const action = isEditing ? "actualizada" : "agregada";
+                  showAlert(`Fuente ${action} correctamente`, "success");
+
+                  // Cerrar modal
+                  const modal = bootstrap.Modal.getInstance(
+                    document.getElementById("addSourceModal")
+                  );
+                  modal.hide();
+
+                  // Recargar fuentes
+                  loadSources();
+                  loadDashboard();
+                } else {
+                  showAlert(
+                    "Error al guardar fuente: " + data.message,
+                    "danger"
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error("Error al guardar fuente:", error);
+                showAlert(
+                  "Error de conexión al intentar guardar la fuente",
+                  "danger"
+                );
+              });
+          });
+
+        // Guardar configuración
+        document
+          .getElementById("settingsForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const timerDuration =
+              document.getElementById("timerDuration").value;
+            const tokenExpiry = document.getElementById("tokenExpiry").value;
+
+            showAlert("Configuración guardada correctamente", "success");
+          });
+
+        // Evento de cierre de sesión
+        logoutBtn.addEventListener("click", function () {
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminUser");
+          window.location.href = "/admin/login.html";
+        });
+
+        // Cargar datos iniciales
+        loadDashboard();
+      });
+    </script>
+  </body>
+</html>

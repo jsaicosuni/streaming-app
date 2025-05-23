@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamPro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --primary-dark: #2980b9;
+        --accent-color: #e74c3c;
+        --dark-bg: #1a1a1a;
+        --medium-bg: #2c2c2c;
+        --light-bg: #333333;
+        --text-color: #f5f5f5;
+        --text-secondary: #aaaaaa;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        --transition-fast: all 0.3s ease;
+        --transition-smooth: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: var(--dark-bg);
+        color: var(--text-color);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Header Styles */
+      header {
+        background: var(--medium-bg);
+        padding: 15px;
+        box-shadow: var(--shadow);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .brand-logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .brand-name {
+        font-size: 1.5rem;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Video Player */
+      .player-wrapper {
+        position: relative;
+        width: 100%;
+        background: var(--medium-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 30px;
+      }
+
+      .video-container {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      }
+
+      #videoPlayer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        outline: none;
+      }
+
+      .player-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .quality-switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 6px 12px;
+        border-radius: 20px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 10;
+        transition: var(--transition-fast);
+      }
+
+      .quality-switch:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      .quality-btn {
+        background: transparent;
+        color: var(--text-secondary);
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 3px 8px;
+        border-radius: 15px;
+        transition: var(--transition-fast);
+      }
+
+      .quality-btn.active {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .live-indicator {
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        background: var(--accent-color);
+        color: white;
+        font-size: 0.8rem;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        z-index: 10;
+      }
+
+      .live-indicator::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .unmute-button {
+        position: absolute;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 24px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        opacity: 0;
+        transition: var(--transition-smooth);
+        z-index: 10;
+        box-shadow: var(--shadow);
+      }
+
+      .unmute-button.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .unmute-button.hide {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+
+      .premium-timer {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 5px 15px;
+        border-radius: 15px;
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 10;
+      }
+      .premium-info {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(46, 204, 113, 0.8);
+        padding: 5px 15px;
+        border-radius: 15px;
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 10;
+      }
+
+      .premium-info.warning {
+        background: rgba(243, 156, 18, 0.8);
+      }
+
+      .premium-info.danger {
+        background: rgba(231, 76, 60, 0.8);
+        animation: pulse-warning 1s infinite;
+      }
+      .premium-timer.warning {
+        background: rgba(231, 76, 60, 0.7);
+        animation: pulse-warning 1s infinite;
+      }
+      .premium-info {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(46, 204, 113, 0.8);
+        padding: 5px 15px;
+        border-radius: 15px;
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 10;
+      }
+
+      .premium-info.warning {
+        background: rgba(243, 156, 18, 0.8);
+      }
+
+      .premium-info.danger {
+        background: rgba(231, 76, 60, 0.8);
+        animation: pulse-warning 1s infinite;
+      }
+
+      @keyframes pulse-warning {
+        0%,
+        100% {
+          background: rgba(231, 76, 60, 0.7);
+        }
+        50% {
+          background: rgba(231, 76, 60, 0.9);
+        }
+      }
+
+      /* Notificación */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--medium-bg);
+        border-radius: 8px;
+        padding: 12px 20px;
+        box-shadow: var(--shadow);
+        z-index: 2000;
+        transform: translateX(110%);
+        transition: transform 0.3s ease;
+        color: white;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .notification.success {
+        background: rgba(39, 174, 96, 0.9);
+      }
+
+      .notification.error {
+        background: rgba(231, 76, 60, 0.9);
+      }
+
+      .notification i {
+        font-size: 1.2rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .brand-logo {
+          font-size: 1.5rem;
+        }
+
+        .brand-name {
+          font-size: 1.2rem;
+        }
+      }
+      /* Ocultar controles de tiempo de forma más agresiva */
+      video::-webkit-media-controls-timeline-container {
+        display: none !important;
+      }
+
+      video::-webkit-media-controls-current-time-display {
+        display: none !important;
+      }
+
+      video::-webkit-media-controls-time-remaining-display {
+        display: none !important;
+      }
+
+      video::-webkit-media-controls-timeline {
+        display: none !important;
+      }
+
+      /* Para otros navegadores */
+      video::-moz-range-progress {
+        display: none !important;
+      }
+
+      video::-moz-range-track {
+        display: none !important;
+      }
+
+      /* Forzar con JavaScript si CSS no funciona */
+      video {
+        position: relative;
+      }
+
+      video::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: transparent;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header Section -->
+    <header>
+      <div class="brand">
+        <div class="brand-logo">
+          <i class="bi bi-play-circle-fill"></i>
+        </div>
+        <div class="brand-name">StreamPro</div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+      <div class="player-wrapper">
+        <div class="video-container">
+          <video id="videoPlayer" playsinline controls></video>
+          <!-- Live indicator -->
+          <div class="live-indicator">LIVE</div>
+
+          <!-- Quality switch -->
+          <div class="quality-switch">
+            <button class="quality-btn active" data-quality="HD">HD</button>
+            <button class="quality-btn" data-quality="SD">SD</button>
+          </div>
+
+          <!-- Unmute button -->
+          <button id="unmuteButton" class="unmute-button">
+            <i class="bi bi-volume-up"></i>
+            <span>Activar Sonido</span>
+          </button>
+
+          <!-- Premium countdown timer -->
+          <div class="premium-timer" id="premiumTimer">
+            <div class="timer-container">
+              <i class="bi bi-stopwatch"></i>
+              <span id="timerCount">15:00</span>
+            </div>
+          </div>
+          <!-- Premium expiration info -->
+          <div class="premium-info" id="premiumInfo" style="display: none">
+            <div class="premium-info-container">
+              <i class="bi bi-star-fill"></i>
+              <span id="premiumTimeLeft">Premium activo</span>
+            </div>
+          </div>
+          <!-- Premium expiration info -->
+          <div class="premium-info" id="premiumInfo" style="display: none">
+            <div class="premium-info-container">
+              <i class="bi bi-star-fill"></i>
+              <span id="premiumTimeLeft">Premium activo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HLS.js for streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <script>
+      // Variable global para acceder a la instancia de PremiumManager desde herramientas de desarrollo
+      window.streamProManager = null;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Página cargada, inicializando reproductor...");
+
+        // Inicializar StreamPlayer
+        const streamPlayer = new StreamPlayer();
+
+        // Inicializar Premium Manager
+        const premiumManager = new PremiumManager(streamPlayer);
+
+        // Exponer globalmente para uso en herramientas de desarrollo
+        window.streamProManager = premiumManager;
+        console.log(
+          "PremiumManager expuesto globalmente como window.streamProManager"
+        );
+      });
+
+      /**
+       * Clase principal para el reproductor de video con soporte HLS
+       */
+      /**
+       * Clase principal para el reproductor de video con soporte HLS
+       */
+      class StreamPlayer {
+        constructor() {
+          // Elementos principales
+          this.video = document.getElementById("videoPlayer");
+          this.unmuteButton = document.getElementById("unmuteButton");
+          this.qualityButtons = document.querySelectorAll(".quality-btn");
+
+          // Estado del reproductor
+          this.hls = null;
+          this.currentQuality = "HD";
+          this.isPaused = false;
+
+          // Las fuentes ahora se obtienen del servidor (no más URLs hardcodeadas)
+          this.videoSources = {};
+          this.sourcesLoaded = false;
+
+          // Inicialización asíncrona
+          this.initialize();
+        }
+
+        /**
+         * NUEVO: Inicialización asíncrona
+         */
+        async initialize() {
+          console.log("Inicializando StreamPlayer...");
+
+          // Cargar fuentes desde el servidor
+          await this.loadVideoSources();
+
+          // Inicializar reproductor
+          this.initPlayer();
+          this.setupEventListeners();
+
+          console.log("StreamPlayer inicializado correctamente");
+        }
+
+        /**
+         * NUEVO: Carga las fuentes de video desde el servidor
+         */
+        async loadVideoSources() {
+          try {
+            console.log("Cargando fuentes de video desde el servidor...");
+
+            // Obtener deviceId (o crear uno temporal)
+            let deviceId = localStorage.getItem("deviceId");
+            if (!deviceId) {
+              deviceId = "guest_" + Math.random().toString(36).substring(2, 15);
+              localStorage.setItem("deviceId", deviceId);
+            }
+
+            const response = await fetch("/api/streaming/sources", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ deviceId }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Error HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success && data.sources) {
+              this.videoSources = data.sources;
+              this.sourcesLoaded = true;
+              console.log(
+                "✅ Fuentes de video cargadas:",
+                Object.keys(this.videoSources)
+              );
+
+              // Actualizar botones de calidad disponibles
+              this.updateQualityButtons();
+            } else {
+              throw new Error(
+                data.message || "No se pudieron obtener las fuentes"
+              );
+            }
+          } catch (error) {
+            console.error("❌ Error al cargar fuentes:", error);
+
+            // Fallback: usar fuentes de ejemplo solo como último recurso
+            this.videoSources = {
+              HD: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+              SD: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+            };
+            this.sourcesLoaded = false;
+
+            console.warn("⚠️ Usando fuentes de fallback");
+          }
+        }
+
+        /**
+         * NUEVO: Actualiza los botones de calidad según las fuentes disponibles
+         */
+        updateQualityButtons() {
+          const availableQualities = Object.keys(this.videoSources);
+
+          this.qualityButtons.forEach((button) => {
+            const quality = button.dataset.quality;
+            if (availableQualities.includes(quality)) {
+              button.style.display = "block";
+              button.disabled = false;
+            } else {
+              button.style.display = "none";
+              button.disabled = true;
+            }
+          });
+
+          // Establecer calidad por defecto a la primera disponible
+          if (availableQualities.length > 0) {
+            this.currentQuality = availableQualities[0];
+
+            // Activar el botón correspondiente
+            this.qualityButtons.forEach((btn) => {
+              btn.classList.remove("active");
+              if (btn.dataset.quality === this.currentQuality) {
+                btn.classList.add("active");
+              }
+            });
+          }
+
+          console.log("Calidades disponibles:", availableQualities);
+          console.log("Calidad seleccionada:", this.currentQuality);
+        }
+
+        /**
+         * Inicializa el reproductor de video con soporte HLS
+         */
+        initPlayer() {
+          console.log("Inicializando reproductor HLS...");
+
+          // Verificar que tengamos fuentes disponibles
+          if (Object.keys(this.videoSources).length === 0) {
+            console.error("No hay fuentes de video disponibles");
+            return;
+          }
+
+          // Verificar si el navegador soporta HLS.js
+          if (Hls.isSupported()) {
+            this.hls = new Hls({
+              debug: false,
+              enableWorker: true,
+              lowLatencyMode: true,
+              backBufferLength: 90,
+              liveBackBufferLength: 30,
+            });
+
+            this.loadQuality(this.currentQuality);
+
+            // Configuración inicial de video
+            this.video.muted = true;
+
+            // Configuración específica para streaming en vivo
+            this.video.currentTime = 0;
+            this.video.preload = "metadata";
+
+            this.video.play().catch((error) => {
+              console.error("Error al iniciar reproducción automática:", error);
+            });
+
+            // Mostrar botón de activar sonido después de 2 segundos
+            setTimeout(() => {
+              if (this.unmuteButton) {
+                this.unmuteButton.classList.add("show");
+              }
+            }, 2000);
+
+            // Detectar si es streaming en vivo
+            this.video.addEventListener("loadedmetadata", () => {
+              if (this.video.duration === Infinity) {
+                console.log("🔴 Streaming en vivo detectado");
+              }
+            });
+          } else if (this.video.canPlayType("application/vnd.apple.mpegurl")) {
+            // Soporte nativo para HLS (Safari)
+            console.log("Usando soporte nativo HLS (Safari)");
+
+            this.video.src = this.videoSources[this.currentQuality];
+            this.video.muted = true;
+            this.video.play().catch((error) => {
+              console.error("Error al iniciar reproducción automática:", error);
+            });
+
+            setTimeout(() => {
+              if (this.unmuteButton) {
+                this.unmuteButton.classList.add("show");
+              }
+            }, 2000);
+          } else {
+            console.error("❌ Tu navegador no soporta HLS");
+            this.showError(
+              "Tu navegador no es compatible con la transmisión en vivo"
+            );
+          }
+        }
+
+        /**
+         * Configura los listeners de eventos para controles del reproductor
+         */
+        setupEventListeners() {
+          // Botón para activar sonido
+          if (this.unmuteButton) {
+            this.unmuteButton.addEventListener("click", () => {
+              this.video.muted = false;
+              this.video.volume = 0.8; // Volumen al 80%
+              this.unmuteButton.classList.add("hide");
+
+              // Remover el botón después de la animación
+              setTimeout(() => {
+                this.unmuteButton.style.display = "none";
+              }, 300);
+
+              console.log("🔊 Sonido activado");
+            });
+          }
+
+          // Botones de calidad de video
+          this.qualityButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+              const quality = button.dataset.quality;
+
+              // Verificar que la calidad esté disponible
+              if (!this.videoSources[quality]) {
+                console.warn(`Calidad ${quality} no disponible`);
+                return;
+              }
+
+              // Actualizar estado de botones
+              this.qualityButtons.forEach((btn) => {
+                btn.classList.remove("active");
+              });
+              button.classList.add("active");
+
+              // Cambiar calidad
+              this.changeQuality(quality);
+            });
+          });
+
+          // Eventos del video
+          this.video.addEventListener("error", (e) => {
+            console.error("Error en el video:", e);
+            this.handleVideoError();
+          });
+
+          this.video.addEventListener("waiting", () => {
+            console.log("Video en espera (buffering)");
+          });
+
+          this.video.addEventListener("playing", () => {
+            console.log("Video reproduciendo");
+          });
+        }
+
+        /**
+         * Carga una calidad específica de video
+         * @param {string} quality - Calidad a cargar ('HD', 'SD', etc.)
+         */
+        loadQuality(quality) {
+          const sourceUrl = this.videoSources[quality];
+
+          if (!sourceUrl) {
+            console.error(`No se encontró fuente para calidad: ${quality}`);
+            return;
+          }
+
+          console.log(`🎬 Cargando calidad: ${quality}`);
+
+          // Guardar estado actual del video
+          const currentTime = this.video.currentTime;
+          const wasPlaying = !this.video.paused;
+
+          // Destruir instancia HLS si existe
+          if (this.hls) {
+            this.hls.destroy();
+            this.hls = new Hls({
+              debug: false,
+              enableWorker: true,
+              lowLatencyMode: true,
+              liveBackBufferLength: 30,
+            });
+          }
+
+          // Cargar nueva fuente
+          this.hls.loadSource(sourceUrl);
+          this.hls.attachMedia(this.video);
+
+          // Configurar manejadores de eventos
+          this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log(`✅ Manifest cargado para calidad ${quality}`);
+
+            // Para streaming en vivo, no restaurar tiempo anterior
+            if (this.video.duration !== Infinity && currentTime > 0) {
+              this.video.currentTime = currentTime;
+            }
+
+            if (wasPlaying) {
+              this.video.play().catch((e) => {
+                console.error("Error al restaurar reproducción:", e);
+              });
+            }
+          });
+
+          this.hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error("Error HLS:", data);
+
+            if (data.fatal) {
+              switch (data.type) {
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                  console.error("Error de red, intentando recuperar...");
+                  this.hls.startLoad();
+                  break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                  console.error("Error de media, intentando recuperar...");
+                  this.hls.recoverMediaError();
+                  break;
+                default:
+                  console.error("Error fatal en HLS, no se puede recuperar");
+                  this.handleVideoError();
+                  break;
+              }
+            }
+          });
+        }
+
+        /**
+         * Cambia la calidad del video
+         * @param {string} quality - Nueva calidad ('HD', 'SD', etc.)
+         */
+        changeQuality(quality) {
+          if (this.currentQuality !== quality && this.videoSources[quality]) {
+            console.log(
+              `🔄 Cambiando calidad de ${this.currentQuality} a ${quality}`
+            );
+            this.currentQuality = quality;
+            this.loadQuality(quality);
+          }
+        }
+
+        /**
+         * Pausa el video
+         */
+        pause() {
+          if (!this.video.paused) {
+            this.isPaused = true;
+            this.video.pause();
+            console.log("⏸️ Video pausado");
+          }
+        }
+
+        /**
+         * Reanuda la reproducción del video
+         */
+        resume() {
+          if (this.isPaused || this.video.paused) {
+            this.isPaused = false;
+            this.video.play().catch((error) => {
+              console.error("Error al reanudar reproducción:", error);
+            });
+            console.log("▶️ Video reanudado");
+          }
+        }
+
+        /**
+         * NUEVO: Maneja errores del video
+         */
+        handleVideoError() {
+          console.error("Manejando error de video");
+          this.showError("Error en la transmisión. Intentando reconectar...");
+
+          // Intentar recargar después de un delay
+          setTimeout(() => {
+            this.loadQuality(this.currentQuality);
+          }, 3000);
+        }
+
+        /**
+         * NUEVO: Muestra mensaje de error al usuario
+         */
+        showError(message) {
+          // Crear elemento de error si no existe
+          let errorElement = document.getElementById("videoError");
+          if (!errorElement) {
+            errorElement = document.createElement("div");
+            errorElement.id = "videoError";
+            errorElement.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(231, 76, 60, 0.9);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 20;
+        text-align: center;
+        font-weight: 500;
+      `;
+            this.video.parentElement.appendChild(errorElement);
+          }
+
+          errorElement.textContent = message;
+          errorElement.style.display = "block";
+
+          // Ocultar después de 5 segundos
+          setTimeout(() => {
+            if (errorElement) {
+              errorElement.style.display = "none";
+            }
+          }, 5000);
+        }
+
+        /**
+         * NUEVO: Recargar fuentes del servidor
+         */
+        async reloadSources() {
+          console.log("🔄 Recargando fuentes desde el servidor...");
+          await this.loadVideoSources();
+
+          // Reinicializar con las nuevas fuentes
+          if (this.sourcesLoaded) {
+            this.loadQuality(this.currentQuality);
+          }
+        }
+
+        /**
+         * NUEVO: Obtener información del estado del reproductor
+         */
+        getStatus() {
+          return {
+            currentQuality: this.currentQuality,
+            availableQualities: Object.keys(this.videoSources),
+            isPlaying: !this.video.paused,
+            isMuted: this.video.muted,
+            volume: this.video.volume,
+            sourcesLoaded: this.sourcesLoaded,
+            currentTime: this.video.currentTime,
+            duration: this.video.duration,
+            isLive: this.video.duration === Infinity,
+          };
+        }
+
+        /**
+         * NUEVO: Limpiar recursos al destruir
+         */
+        destroy() {
+          console.log("🧹 Limpiando recursos del reproductor");
+
+          if (this.hls) {
+            this.hls.destroy();
+            this.hls = null;
+          }
+
+          // Pausar video
+          this.video.pause();
+
+          // Limpiar eventos si es necesario
+          this.video.removeEventListener("error", this.handleVideoError);
+        }
+      }
+      /**
+       * Clase para gestionar la funcionalidad premium y temporizador
+       */
+      /**
+       * Clase para gestionar la funcionalidad premium y temporizador
+       */
+      /**
+       * Clase para gestionar la funcionalidad premium y temporizador
+       */
+      /**
+       * Clase para gestionar la funcionalidad premium y temporizador
+       */
+      class PremiumManager {
+        constructor(streamPlayer) {
+          // Referencia al reproductor
+          this.player = streamPlayer;
+
+          // Elementos del DOM
+          this.timerElement = document.getElementById("timerCount");
+          this.timerContainer = document.getElementById("premiumTimer");
+          this.premiumInfoElement = document.getElementById("premiumInfo");
+          this.premiumTimeLeftElement =
+            document.getElementById("premiumTimeLeft");
+
+          // Variables de control
+          this.timeLimit = 15; // 15 segundos para desarrollo local
+          this.timeRemaining = this.loadTimerState();
+          this.timerInterval = null;
+          this.isPremium = false;
+          this.isModalShown = false;
+          this.timerExpired = this.loadTimerExpiredState();
+
+          // Variables para expiración premium
+          this.premiumExpiresAt = null;
+          this.premiumCheckInterval = null;
+
+          // Intervalos
+          this.tokenVerificationInterval = null;
+
+          // Modo de desarrollo para pruebas
+          this.devMode = false;
+          this.validDevCodes = [
+            "CODE-0001",
+            "CODE-0004",
+            "CODE-0005",
+            "CODE-0007",
+            "CODE-0009",
+            "hoy9Y3R-KA6Y",
+          ];
+          this.debug = true;
+
+          // NUEVO: Cargar estado premium desde localStorage
+          this.loadPremiumState();
+
+          // NUEVO: Si ya es premium, configurar inmediatamente
+          if (this.isPremium) {
+            this.log("Usuario premium detectado, configurando interfaz...");
+            this.timerContainer.style.display = "none";
+            this.showPremiumInfo();
+            this.startPremiumCountdown();
+            this.startTokenVerification();
+          }
+
+          // Comprobar estado con el servidor
+          this.checkPremiumStatus();
+
+          // Si el temporizador ya expiró, mostrar modal inmediatamente
+          if (this.timerExpired && !this.isPremium) {
+            this.log("Temporizador previamente expirado, mostrando modal");
+            setTimeout(() => {
+              this.createEmergencyModal();
+            }, 500);
+          }
+          // Iniciar temporizador si no es premium y temporizador no ha expirado
+          else if (!this.isPremium) {
+            this.startTimer();
+          }
+
+          // Exponer la instancia en el elemento para acceso externo
+          document.querySelector(".player-wrapper").__premiumManager = this;
+
+          this.log(
+            "PremiumManager inicializado. Modo de desarrollo:",
+            this.devMode
+          );
+          this.log("Estado premium inicial:", this.isPremium);
+          this.log("Fecha de expiración:", this.premiumExpiresAt);
+        }
+
+        /**
+         * Función de registro para depuración
+         */
+        log(...args) {
+          if (this.debug) {
+            console.log("[PremiumManager]", ...args);
+          }
+        }
+
+        /**
+         * NUEVO: Carga el estado premium desde localStorage
+         */
+        loadPremiumState() {
+          const premiumToken = localStorage.getItem("premiumToken");
+          const premiumExpiry = localStorage.getItem("premiumExpiresAt");
+
+          if (premiumToken) {
+            this.isPremium = true;
+            this.log("Estado premium cargado desde localStorage");
+
+            if (premiumExpiry) {
+              this.premiumExpiresAt = new Date(premiumExpiry);
+              this.log("Fecha de expiración cargada:", this.premiumExpiresAt);
+            }
+          }
+        }
+
+        /**
+         * NUEVO: Guarda el estado premium en localStorage
+         */
+        savePremiumState(expiresAt = null) {
+          if (expiresAt) {
+            this.premiumExpiresAt = expiresAt;
+            localStorage.setItem("premiumExpiresAt", expiresAt.toISOString());
+            this.log("Estado premium guardado con expiración:", expiresAt);
+          }
+        }
+
+        /**
+         * NUEVO: Limpia el estado premium del localStorage
+         */
+        clearPremiumState() {
+          localStorage.removeItem("premiumToken");
+          localStorage.removeItem("premiumExpiresAt");
+          this.isPremium = false;
+          this.premiumExpiresAt = null;
+          this.log("Estado premium limpiado");
+        }
+
+        /**
+         * Carga el estado del temporizador desde localStorage
+         */
+        loadTimerState() {
+          const savedTime = localStorage.getItem("timerRemaining");
+          return savedTime ? parseInt(savedTime) : this.timeLimit;
+        }
+
+        /**
+         * Guarda el estado del temporizador en localStorage
+         */
+        saveTimerState(time) {
+          localStorage.setItem("timerRemaining", time.toString());
+        }
+
+        /**
+         * Carga el estado de expiración del temporizador
+         */
+        loadTimerExpiredState() {
+          return localStorage.getItem("timerExpired") === "true";
+        }
+
+        /**
+         * Guarda el estado de expiración del temporizador
+         */
+        saveTimerExpiredState(expired) {
+          localStorage.setItem("timerExpired", expired.toString());
+        }
+
+        /**
+         * Verifica si el dispositivo ya tiene acceso premium activado
+         */
+        checkPremiumStatus(isPeriodicCheck = false) {
+          this.log(
+            "Verificando estado premium...",
+            "Verificación periódica:",
+            isPeriodicCheck
+          );
+
+          const premiumToken = localStorage.getItem("premiumToken");
+          const deviceId = this.getDeviceId();
+
+          if (!premiumToken) {
+            this.log("No se encontró token premium");
+
+            // Solo ejecutar lógica de revocación si era una verificación periódica Y el usuario era premium
+            if (isPeriodicCheck && this.isPremium) {
+              this.log("Token revocado durante verificación periódica");
+              this.handleTokenRevoked();
+              return;
+            }
+
+            // Si no es verificación periódica, simplemente actualizar estado
+            this.isPremium = false;
+            this.hidePremiumInfo();
+            return;
+          }
+
+          // En modo desarrollo, considerar cualquier token válido
+          if (this.devMode && premiumToken.startsWith("dev_")) {
+            this.log("Modo dev: Token premium válido");
+
+            // Configurar estado premium
+            this.isPremium = true;
+            this.timerContainer.style.display = "none";
+
+            // Cargar o simular fecha de expiración
+            if (!this.premiumExpiresAt) {
+              this.premiumExpiresAt = new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+              );
+              this.savePremiumState(this.premiumExpiresAt);
+            }
+
+            this.showPremiumInfo();
+            this.startPremiumCountdown();
+
+            if (!this.tokenVerificationInterval) {
+              this.startTokenVerification();
+            }
+            return;
+          }
+
+          // Verificar validez del token con el servidor
+          this.log(
+            "Verificando token con el servidor:",
+            premiumToken.substring(0, 10) + "..."
+          );
+
+          fetch("/api/devices/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token: premiumToken, deviceId }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success && data.premiumAccess) {
+                this.log("Token válido verificado con el servidor");
+
+                // Configurar estado premium
+                this.isPremium = true;
+                this.timerContainer.style.display = "none";
+                this.saveTimerExpiredState(false);
+
+                // Obtener fecha de expiración si está disponible
+                if (data.expiresAt && !this.premiumExpiresAt) {
+                  this.savePremiumState(new Date(data.expiresAt));
+                }
+
+                // Mostrar información premium
+                this.showPremiumInfo();
+                this.startPremiumCountdown();
+
+                if (!this.tokenVerificationInterval) {
+                  this.startTokenVerification();
+                }
+              } else {
+                this.log("Token inválido según el servidor");
+
+                // Solo ejecutar lógica de revocación if es verificación periódica Y era premium
+                if (isPeriodicCheck && this.isPremium) {
+                  this.log("Token revocado durante verificación periódica");
+                  this.handleTokenRevoked();
+                } else {
+                  // Si no es verificación periódica, limpiar estado sin mostrar modal
+                  this.log("Limpiando token inválido");
+                  this.clearPremiumState();
+                  this.hidePremiumInfo();
+
+                  if (this.timerExpired) {
+                    this.createEmergencyModal();
+                  } else {
+                    this.startTimer();
+                  }
+                }
+              }
+            })
+            .catch((error) => {
+              this.log("Error al verificar estado premium:", error);
+
+              if (this.devMode) {
+                // En modo desarrollo, mantener estado premium si hay error
+                if (premiumToken) {
+                  this.isPremium = true;
+                  this.log(
+                    "Modo dev: Manteniendo token válido por error de conexión"
+                  );
+                  this.timerContainer.style.display = "none";
+
+                  if (!this.premiumExpiresAt) {
+                    this.premiumExpiresAt = new Date(
+                      Date.now() + 30 * 24 * 60 * 60 * 1000
+                    );
+                    this.savePremiumState(this.premiumExpiresAt);
+                  }
+
+                  this.showPremiumInfo();
+                  this.startPremiumCountdown();
+
+                  if (!this.tokenVerificationInterval) {
+                    this.startTokenVerification();
+                  }
+                }
+              } else {
+                // En producción, mantener estado si ya era premium (no cambiar por error de conexión)
+                if (!isPeriodicCheck && !this.isPremium) {
+                  this.hidePremiumInfo();
+                  if (this.timerExpired) {
+                    this.createEmergencyModal();
+                  } else {
+                    this.startTimer();
+                  }
+                }
+              }
+            });
+        }
+
+        /**
+         * Muestra la información de premium y tiempo restante
+         */
+        showPremiumInfo() {
+          this.log("Mostrando información premium");
+          if (this.premiumInfoElement) {
+            this.premiumInfoElement.style.display = "flex";
+            this.updatePremiumTimeDisplay();
+          } else {
+            this.log("ERROR: Elemento premiumInfo no encontrado en el DOM");
+          }
+        }
+
+        /**
+         * Oculta la información de premium
+         */
+        hidePremiumInfo() {
+          this.log("Ocultando información premium");
+          if (this.premiumInfoElement) {
+            this.premiumInfoElement.style.display = "none";
+          }
+
+          // Detener countdown de premium
+          if (this.premiumCheckInterval) {
+            clearInterval(this.premiumCheckInterval);
+            this.premiumCheckInterval = null;
+          }
+        }
+
+        /**
+         * Inicia el countdown del tiempo premium restante
+         */
+        startPremiumCountdown() {
+          if (this.premiumCheckInterval) {
+            clearInterval(this.premiumCheckInterval);
+          }
+
+          // Actualizar inmediatamente
+          this.updatePremiumTimeDisplay();
+
+          // Actualizar cada minuto
+          this.premiumCheckInterval = setInterval(() => {
+            this.updatePremiumTimeDisplay();
+          }, 60000); // 1 minuto
+
+          this.log("Countdown de premium iniciado");
+        }
+
+        /**
+         * Actualiza la visualización del tiempo premium restante
+         */
+        updatePremiumTimeDisplay() {
+          if (!this.premiumTimeLeftElement) {
+            this.log("ERROR: Elemento premiumTimeLeft no encontrado");
+            return;
+          }
+
+          if (!this.premiumExpiresAt) {
+            this.log("No hay fecha de expiración, mostrando mensaje genérico");
+            this.premiumTimeLeftElement.textContent = "Premium activo";
+            this.premiumInfoElement.className = "premium-info";
+            return;
+          }
+
+          const now = new Date();
+          const timeLeft = this.premiumExpiresAt.getTime() - now.getTime();
+
+          this.log("Tiempo restante calculado:", timeLeft, "ms");
+
+          if (timeLeft <= 0) {
+            this.premiumTimeLeftElement.textContent = "Premium expirado";
+            this.premiumInfoElement.className = "premium-info danger";
+            return;
+          }
+
+          const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+          );
+
+          let timeText = "";
+          let cssClass = "premium-info";
+
+          if (days > 0) {
+            timeText = `${days}d ${hours}h restantes`;
+            cssClass = days <= 3 ? "premium-info warning" : "premium-info";
+          } else if (hours > 0) {
+            timeText = `${hours}h ${minutes}m restantes`;
+            cssClass =
+              hours <= 12 ? "premium-info danger" : "premium-info warning";
+          } else {
+            timeText = `${minutes}m restantes`;
+            cssClass = "premium-info danger";
+          }
+
+          this.premiumTimeLeftElement.textContent = timeText;
+          this.premiumInfoElement.className = cssClass;
+
+          this.log("Display actualizado:", timeText);
+        }
+
+        /**
+         * Maneja cuando el token ha sido revocado
+         */
+        handleTokenRevoked() {
+          this.log("Token revocado, cerrando sesión premium");
+
+          // Limpiar estado premium
+          this.clearPremiumState();
+
+          // Detener verificación periódica
+          if (this.tokenVerificationInterval) {
+            clearInterval(this.tokenVerificationInterval);
+            this.tokenVerificationInterval = null;
+          }
+
+          // Ocultar información premium
+          this.hidePremiumInfo();
+
+          // Pausar reproductor
+          this.player.pause();
+
+          // Mostrar notificación
+          this.showNotification("Tu acceso premium ha sido revocado", "error");
+
+          // Mostrar modal de acceso premium
+          setTimeout(() => {
+            this.createEmergencyModal();
+          }, 2000);
+        }
+
+        /**
+         * Inicia el temporizador de cuenta regresiva
+         */
+        startTimer() {
+          // No iniciar temporizador si es premium
+          if (this.isPremium) {
+            this.log("Usuario premium, no se inicia temporizador");
+            return;
+          }
+
+          this.log("Iniciando temporizador:", this.timeRemaining, "segundos");
+
+          this.timerInterval = setInterval(() => {
+            this.timeRemaining--;
+            this.saveTimerState(this.timeRemaining);
+            this.updateTimerDisplay();
+
+            if (this.timeRemaining <= 5) {
+              console.log(
+                "Temporizador: quedan",
+                this.timeRemaining,
+                "segundos"
+              );
+            }
+
+            if (
+              this.timeRemaining <= 10 &&
+              !this.timerContainer.classList.contains("warning")
+            ) {
+              this.timerContainer.classList.add("warning");
+            }
+
+            if (this.timeRemaining <= 0) {
+              console.log("¡CONTADOR LLEGÓ A CERO!");
+              clearInterval(this.timerInterval);
+              this.player.pause();
+              this.saveTimerExpiredState(true);
+              this.timerExpired = true;
+              this.createEmergencyModal();
+            }
+          }, 1000);
+        }
+
+        /**
+         * Inicia verificación periódica del token (cada 10 segundos)
+         */
+        startTokenVerification() {
+          if (this.tokenVerificationInterval) {
+            clearInterval(this.tokenVerificationInterval);
+          }
+
+          // Verificar cada 10 segundos
+          this.tokenVerificationInterval = setInterval(() => {
+            this.checkPremiumStatus(true);
+          }, 10000);
+
+          this.log(
+            "Verificación periódica de token iniciada (cada 10 segundos)"
+          );
+        }
+
+        /**
+         * Detiene el temporizador
+         */
+        stopTimer() {
+          this.log("Temporizador detenido");
+          clearInterval(this.timerInterval);
+          this.player.pause();
+        }
+
+        /**
+         * Actualiza la visualización del tiempo restante
+         */
+        updateTimerDisplay() {
+          const minutes = Math.floor(this.timeRemaining / 60);
+          const seconds = this.timeRemaining % 60;
+          this.timerElement.textContent = `${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        }
+
+        /**
+         * Método de emergencia para crear un modal cuando el tiempo termina
+         */
+        createEmergencyModal() {
+          console.log("Creando modal de acceso premium...");
+
+          const existingModal = document.getElementById("emergencyModal");
+          if (existingModal) {
+            document.body.removeChild(existingModal);
+          }
+
+          const emergencyModal = document.createElement("div");
+          emergencyModal.id = "emergencyModal";
+          emergencyModal.style.position = "fixed";
+          emergencyModal.style.top = "0";
+          emergencyModal.style.left = "0";
+          emergencyModal.style.width = "100%";
+          emergencyModal.style.height = "100%";
+          emergencyModal.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+          emergencyModal.style.display = "flex";
+          emergencyModal.style.justifyContent = "center";
+          emergencyModal.style.alignItems = "center";
+          emergencyModal.style.zIndex = "9999";
+
+          emergencyModal.innerHTML = `
+      <div style="background: #2c2c2c; border-radius: 10px; max-width: 500px; width: 90%; overflow: hidden; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);">
+        <div style="background: #3498db; color: white; padding: 20px;">
+          <h3 style="margin: 0; font-size: 1.5rem;"><i class="bi bi-star-fill"></i> Acceso Premium</h3>
+        </div>
+        <div style="padding: 30px 20px;">
+          <div style="margin-bottom: 25px; font-size: 1.1rem;">
+            <p>Has terminado el período de prueba gratuito.</p>
+            <p>Para continuar viendo, ingresa tu código de activación premium:</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <label for="emergencyCode" style="font-size: 0.9rem; color: #aaaaaa;">Código de activación</label>
+              <input id="emergencyCode" type="text" placeholder="Ingresa tu código" style="padding: 12px 15px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: #f5f5f5; font-size: 1rem;">
+              <div id="emergencyError" style="color: #e74c3c; font-size: 0.9rem; margin-top: 5px; display: none;">
+                Código incorrecto. Por favor, verifica e intenta nuevamente.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 15px 20px; background: #1a1a1a;">
+          <button id="emergencyCancelBtn" style="background: transparent; color: #f5f5f5; border: 1px solid #333; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500;">Cancelar</button>
+          <button id="emergencyActivateBtn" style="background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500;">Activar Premium</button>
+        </div>
+      </div>
+    `;
+
+          document.body.appendChild(emergencyModal);
+
+          const codeInput = document.getElementById("emergencyCode");
+          const activateBtn = document.getElementById("emergencyActivateBtn");
+          const cancelBtn = document.getElementById("emergencyCancelBtn");
+          const errorMsg = document.getElementById("emergencyError");
+
+          if (codeInput) {
+            setTimeout(() => codeInput.focus(), 100);
+          }
+
+          if (activateBtn) {
+            activateBtn.addEventListener("click", () => {
+              const code = codeInput.value.trim();
+              if (!code) {
+                errorMsg.textContent =
+                  "Por favor, ingresa un código de activación.";
+                errorMsg.style.display = "block";
+                return;
+              }
+
+              // En modo desarrollo o si el código es válido
+              if (
+                this.devMode &&
+                this.validDevCodes &&
+                this.validDevCodes.includes(code)
+              ) {
+                const mockToken =
+                  "dev_" + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem("premiumToken", mockToken);
+                this.isPremium = true;
+                if (this.timerContainer) {
+                  this.timerContainer.style.display = "none";
+                }
+                document.body.removeChild(emergencyModal);
+
+                this.saveTimerExpiredState(false);
+                this.timerExpired = false;
+                this.saveTimerState(this.timeLimit);
+                this.timeRemaining = this.timeLimit;
+
+                // Configurar expiración simulada
+                const expirationDate = new Date(
+                  Date.now() + 30 * 24 * 60 * 60 * 1000
+                );
+                this.savePremiumState(expirationDate);
+                this.showPremiumInfo();
+                this.startPremiumCountdown();
+                this.startTokenVerification();
+
+                if (typeof this.player.resume === "function") {
+                  this.player.resume();
+                }
+                this.showNotification(
+                  "Acceso premium activado correctamente",
+                  "success"
+                );
+              } else {
+                // Verificar con API real
+                this.verifyCodeWithAPI(code, errorMsg, emergencyModal);
+              }
+            });
+          }
+
+          if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+              document.body.removeChild(emergencyModal);
+              setTimeout(() => {
+                this.createEmergencyModal();
+              }, 500);
+            });
+          }
+
+          if (codeInput) {
+            codeInput.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                activateBtn.click();
+              }
+            });
+          }
+
+          console.log("Modal de acceso premium creado y mostrado");
+        }
+
+        /**
+         * Verifica un código con la API
+         */
+        verifyCodeWithAPI(code, errorElement, modalElement) {
+          const deviceId = this.getDeviceId();
+
+          fetch("/api/codes/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code, deviceId }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                localStorage.setItem("premiumToken", data.token);
+                this.isPremium = true;
+
+                if (this.timerContainer) {
+                  this.timerContainer.style.display = "none";
+                }
+
+                this.saveTimerExpiredState(false);
+                this.timerExpired = false;
+                this.saveTimerState(this.timeLimit);
+                this.timeRemaining = this.timeLimit;
+
+                // Obtener fecha de expiración de la respuesta
+                if (data.expiresAt) {
+                  this.savePremiumState(new Date(data.expiresAt));
+                }
+
+                this.showPremiumInfo();
+                this.startPremiumCountdown();
+                this.startTokenVerification();
+
+                document.body.removeChild(modalElement);
+
+                if (typeof this.player.resume === "function") {
+                  this.player.resume();
+                }
+
+                this.showNotification(
+                  "Acceso premium activado correctamente",
+                  "success"
+                );
+              } else {
+                errorElement.textContent =
+                  data.message ||
+                  "Código inválido. Por favor, verifica e intenta nuevamente.";
+                errorElement.style.display = "block";
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              errorElement.textContent =
+                "Error de conexión. Por favor, intenta nuevamente.";
+              errorElement.style.display = "block";
+            });
+        }
+
+        /**
+         * Muestra una notificación temporal
+         */
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.innerHTML = `
+      <div class="notification-content">
+        <i class="bi ${
+          type === "success"
+            ? "bi-check-circle-fill"
+            : type === "error"
+            ? "bi-x-circle-fill"
+            : "bi-info-circle-fill"
+        }"></i>
+        <span>${message}</span>
+      </div>
+    `;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.classList.add("show");
+          }, 10);
+
+          setTimeout(() => {
+            notification.classList.remove("show");
+            setTimeout(() => {
+              if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+              }
+            }, 300);
+          }, 3000);
+        }
+
+        /**
+         * Obtiene o genera un ID único para el dispositivo
+         */
+        getDeviceId() {
+          let deviceId = localStorage.getItem("deviceId");
+
+          if (!deviceId) {
+            deviceId = this.devMode
+              ? "dev_test_device"
+              : "dev_" +
+                Math.random().toString(36).substring(2, 15) +
+                Math.random().toString(36).substring(2, 15);
+            localStorage.setItem("deviceId", deviceId);
+            this.log("Nuevo deviceId generado:", deviceId);
+          }
+
+          return deviceId;
+        }
+      }
+    </script>
+    <!-- Herramientas de desarrollo (eliminar en producción) -->
+    <script src="js/dev-tools.js"></script>
+  </body>
+</html>
